@@ -50,3 +50,6 @@ jobs:
       - name: Manual approval for production
         uses: hmarr/auto-approve-action@v3.0.0
         if: always()  # We’ll replace this with manual approval job
+
+
+
