@@ -48,9 +48,6 @@ jobs:
       - name: Deploy to Staging VM
         run: echo "📦 SSH & deploy to staging logic here"
 
-      - name: Manual approval for production
-        uses: hmarr/auto-approve-action@v3.0.0
-        if: always()  # We’ll replace this with manual approval job
-
-
-
+      # - name: Manual approval for production
+      #   uses: hmarr/auto-approve-action@v3.0.0
+      #   if: always()  # We’ll replace this with manual approval job
