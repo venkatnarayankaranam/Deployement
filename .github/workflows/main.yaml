@@ -76,10 +76,24 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: production
-      url: http://your-production-url.com
+      url: http://your-production-url.com  # (you can update this later)
     steps:
-      - name: Manual approval
+      - name: Wait for manual approval
         uses: trstringer/manual-approval@v1
         with:
           secret: ${{ secrets.GITHUB_TOKEN }}
-          approvers: username1,username2
+          approvers: your-github-username  # Replace with your GitHub username
+
+      - name: Deploy to Production
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM_IP }}
+          username: ${{ secrets.VM_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            docker stop my-python-app || true
+            docker rm my-python-app || true
+            docker rmi my-python-app || true
+            cd ~/app
+            docker build -t my-python-app .
+            docker run -d -p 80:80 --name my-python-app my-python-app
