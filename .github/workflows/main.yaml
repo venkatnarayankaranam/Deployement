@@ -20,12 +20,10 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd deployment
           pip install -r requirements.txt
 
       - name: Run tests
         run: |
-          cd deployment
           PYTHONPATH=. pytest
 
   docker:
@@ -41,7 +39,6 @@ jobs:
 
       - name: Build Docker image
         run: |
-          cd deployment
           docker build -t my-python-app .
 
       - name: Push to Docker Registry
@@ -52,4 +49,4 @@ jobs:
 
       - name: Manual approval for production
         uses: hmarr/auto-approve-action@v3.0.0
-        if: always() # We'll change this to manual approval later
+        if: always()  # We’ll replace this with manual approval job
