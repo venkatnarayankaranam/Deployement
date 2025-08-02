@@ -35,18 +35,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Log in to Docker Hub / ACR
-        run: echo "🔐 (We'll add login to ACR later)"
-
-      - name: Build Docker image
-        run: |
-          docker build -t my-python-app .
-
-      - name: Push to Docker Registry
-        run: echo "🚀 (Push to registry logic here)"
-
-      - name: Deploy to Staging VM
-        run: echo "📦 SSH & deploy to staging logic here"
+      - name: Deploy to Azure VM via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+         host: ${{ secrets.VM_IP }}
+         username: ${{ secrets.VM_USER }}
+         key: ${{ secrets.SSH_PRIVATE_KEY }}
+         script: |
+          docker stop my-python-app || true
+          docker rm my-python-app || true
+          docker pull my-python-app:latest || true  # If ACR was used
+          docker run -d -p 80:8000 --name my-python-app my-python-app:latest
 
       # - name: Manual approval for production
       #   uses: hmarr/auto-approve-action@v3.0.0
