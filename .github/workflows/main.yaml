@@ -71,16 +71,15 @@ jobs:
             docker build -t my-python-app .
             docker run -d -p 80:80 --name my-python-app my-python-app
 
-  # production:
-  #   needs: staging
-  #   runs-on: ubuntu-latest
-  #   environment:
-  #     name: production
-  #     url: http://your-production-url.com
-  #   steps:
-  #     - name: Manual approval
-  #       uses: trstringer/manual-approval@v1
-  #       with:
-  #         secret: ${{ secrets.GITHUB_TOKEN }}
-  #         approvers: username1,username2
-# 
+  production:
+    needs: staging
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: http://your-production-url.com
+    steps:
+      - name: Manual approval
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ secrets.GITHUB_TOKEN }}
+          approvers: username1,username2
