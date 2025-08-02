@@ -6,7 +6,6 @@ on:
   push:
     branches: [ master ]
 
-
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -27,8 +26,28 @@ jobs:
         run: |
           PYTHONPATH=. pytest
 
-  docker:
+  security_scan:
     needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Trivy
+        run: |
+          sudo apt-get update
+          sudo apt-get install wget -y
+          wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.51.1_Linux-64bit.deb
+          sudo dpkg -i trivy_0.51.1_Linux-64bit.deb
+
+      - name: Build Docker Image
+        run: docker build -t my-python-app .
+
+      - name: Run Trivy Vulnerability Scan
+        run: trivy image my-python-app
+
+  staging:
+    needs: security_scan
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
@@ -49,6 +68,15 @@ jobs:
             docker build -t my-python-app .
             docker run -d -p 80:80 --name my-python-app my-python-app
 
-      # - name: Manual approval for production
-      #   uses: hmarr/auto-approve-action@v3.0.0
-      #   if: always()  # We’ll replace this with manual approval job
+  # production:
+  #   needs: staging
+  #   runs-on: ubuntu-latest
+  #   environment:
+  #     name: production
+  #     url: http://your-production-url.com
+  #   steps:
+  #     - name: Manual approval
+  #       uses: trstringer/manual-approval@v1
+  #       with:
+  #         secret: ${{ secrets.GITHUB_TOKEN }}
+  #         approvers: username1,username2
