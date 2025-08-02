@@ -14,5 +14,5 @@ COPY . .
 # Set environment variable
 ENV PYTHONPATH=.
 
-# Command to run the app
-CMD ["python", "app/app.py"]
+# Command to run the app with 2 inputs (3, 4)
+CMD ["python", "app.py", "3", "4"]
