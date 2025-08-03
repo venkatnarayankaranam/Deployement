@@ -19,12 +19,10 @@ jobs:
           python-version: 3.9
 
       - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
 
       - name: Run tests
-        run: |
-          PYTHONPATH=. pytest
+        run: PYTHONPATH=. pytest
 
   security_scan:
     needs: test
@@ -42,6 +40,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install trivy -y
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Build Docker Image
         run: docker build -t my-python-app .
 
@@ -56,13 +57,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Copy app files to VM
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        run: docker build -t my-python-app .
+
+      - name: Save image to tar
+        run: docker save my-python-app -o my-python-app.tar
+
+      - name: Copy Docker image to VM
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.VM_IP }}
           username: ${{ secrets.VM_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "."
+          source: "my-python-app.tar"
           target: "~/app"
 
       - name: Deploy to Azure VM via SSH
@@ -75,16 +85,15 @@ jobs:
             docker stop my-python-app || true
             docker rm my-python-app || true
             docker rmi my-python-app || true
-            cd ~/app
-            docker build -t my-python-app .
+            docker load -i ~/app/my-python-app.tar
             docker run -d -p 80:80 --name my-python-app my-python-app
+            docker logs my-python-app
 
   production:
     needs: staging
     runs-on: ubuntu-latest
     environment:
       name: production
-      url: http://your-production-url.com  # Optional: update if needed
     steps:
       - name: Wait for manual approval
         uses: trstringer/manual-approval@v1
@@ -92,13 +101,25 @@ jobs:
           secret: ${{ secrets.GITHUB_TOKEN }}
           approvers: pallavibandreddy
 
-      - name: Copy app files to VM
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        run: docker build -t my-python-app .
+
+      - name: Save image to tar
+        run: docker save my-python-app -o my-python-app.tar
+
+      - name: Copy Docker image to VM
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.VM_IP }}
           username: ${{ secrets.VM_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "."
+          source: "my-python-app.tar"
           target: "~/app"
 
       - name: Deploy to Production
@@ -111,6 +132,6 @@ jobs:
             docker stop my-python-app || true
             docker rm my-python-app || true
             docker rmi my-python-app || true
-            cd ~/app
-            docker build -t my-python-app .
+            docker load -i ~/app/my-python-app.tar
             docker run -d -p 80:80 --name my-python-app my-python-app
+            docker logs my-python-app
