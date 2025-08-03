@@ -1,18 +1,7 @@
-# Use official Python image
 FROM python:3.9-slim
-
-# Set working directory
 WORKDIR /app
-
-# Copy all files first (including requirements.txt and app.py)
-COPY . .
-
-# Install Python dependencies
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Set environment variable
+COPY . .
 ENV PYTHONPATH=.
-
-# Default command to run the app
-CMD ["python", "app/app.py", "3", "4"]
-
+CMD ["python", "app/app.py"]
