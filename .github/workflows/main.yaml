@@ -42,7 +42,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install trivy -y
 
-
       - name: Build Docker Image
         run: docker build -t my-python-app .
 
@@ -56,6 +55,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Copy app files to VM
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.VM_IP }}
+          username: ${{ secrets.VM_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "."
+          target: "~/app"
 
       - name: Deploy to Azure VM via SSH
         uses: appleboy/ssh-action@v1.0.0
@@ -76,13 +84,22 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: production
-      url: http://your-production-url.com  # (you can update this later)
+      url: http://your-production-url.com  # Optional: update if needed
     steps:
       - name: Wait for manual approval
         uses: trstringer/manual-approval@v1
         with:
           secret: ${{ secrets.GITHUB_TOKEN }}
-          approvers: your-github-username  # Replace with your GitHub username
+          approvers: pallavibandreddy
+
+      - name: Copy app files to VM
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.VM_IP }}
+          username: ${{ secrets.VM_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "."
+          target: "~/app"
 
       - name: Deploy to Production
         uses: appleboy/ssh-action@v1.0.3
