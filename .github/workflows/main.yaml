@@ -158,3 +158,4 @@ jobs:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_COLOR: '#FF0000'
           SLACK_MESSAGE: '🚨 Deployment failed in `${{ github.repository }}` on branch `${{ github.ref }}`. Please check the pipeline.'
+
