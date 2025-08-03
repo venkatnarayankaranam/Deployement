@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Income Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>💰 Income Tracker</h1>
+        <form action="/add" method="post">
+            <input type="text" name="source" placeholder="Source" required>
+            <input type="number" name="amount" placeholder="Amount" required>
+            <button type="submit">Add Income</button>
+        </form>
+
+        <h2>Total Income: ₹{{ total }}</h2>
+        <ul>
+            {% for entry in income %}
+            <li>{{ entry.source }} - ₹{{ entry.amount }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>
