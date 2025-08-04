@@ -1,7 +1,9 @@
 from flask import Flask, render_template, request
-from prometheus_client import Counter, generate_latest, Gauge
+from prometheus_client import Counter, Gauge
+from prometheus_flask_exporter import PrometheusMetrics
 
 app = Flask(__name__)
+metrics = PrometheusMetrics(app)  # This exposes /metrics automatically
 
 # Sample income entries
 income_entries = [
@@ -9,7 +11,7 @@ income_entries = [
     {"source": "Freelance", "amount": 15000}
 ]
 
-# PROMETHEUS METRICS
+# Prometheus custom metrics
 income_add_counter = Counter('income_add_requests', 'Number of income add requests')
 total_income_gauge = Gauge('total_income_amount', 'Total income amount')
 
@@ -26,10 +28,6 @@ def add_income():
     income_entries.append({"source": source, "amount": amount})
     income_add_counter.inc()
     return index()
-
-@app.route('/metrics')
-def metrics():
-    return generate_latest(), 200, {'Content-Type': 'text/plain'}
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
